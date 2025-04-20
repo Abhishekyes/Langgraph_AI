@@ -3,7 +3,7 @@
 > **Author:** Abhishek
 > **Role:** Data Scientist | ML Engineer | Automation Specialist  
 > **Contact:** vvabhi2776@gmail.com  
-> **GitHub:** [github.com/abhishek-vv](https://github.com/abhishek-vv)
+> **GitHub:** [github.com/Abhishekyes](https://github.com/Abhishekyes)
 
 ---
 
