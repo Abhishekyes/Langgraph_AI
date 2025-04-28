@@ -74,12 +74,16 @@ def select_model(prompt: str) -> str:
         return "llama-4-scout"
     return "gpt-4.1-mini"
 
+import openai  # ✅ NEW: Import OpenAI
+
+
 class EuronLLM(LLM, BaseModel):
     api_url: str = "https://api.euron.one/api/v1/euri/alpha/chat/completions"
     model: Optional[str] = None
     temperature: float = 0.7
     max_tokens: int = 1000
     token: str = Field(default_factory=lambda: os.getenv("EURON_API_TOKEN"))
+    openai_key: str = Field(default_factory=lambda: os.getenv("OPENAI_API_KEY"))  # ✅ NEW
 
     @property
     def _llm_type(self) -> str:
@@ -95,6 +99,7 @@ class EuronLLM(LLM, BaseModel):
             "Content-Type": "application/json"
         }
 
+        # ➡️ First try Euron models
         for model in attempted_models:
             payload = {
                 "model": model,
@@ -105,7 +110,7 @@ class EuronLLM(LLM, BaseModel):
             for attempt in range(3):
                 try:
                     logger.info(f"Attempt {attempt + 1} with model: {model}")
-                    response = requests.post(self.api_url, headers=headers, json=payload)
+                    response = requests.post(self.api_url, headers=headers, json=payload, timeout=15)
                     response.raise_for_status()
                     data = response.json()
                     content = (
@@ -115,13 +120,32 @@ class EuronLLM(LLM, BaseModel):
                         .strip()
                     )
                     if content:
-                        logger.info(f"✅ Success using model: {model}")
+                        logger.info(f"✅ Success using Euron model: {model}")
                         self.model = model
                         return content
                     logger.warning("Empty content received. Retrying...")
                 except Exception as e:
                     logger.error(f"❌ Attempt {attempt + 1} failed with model {model}: {e}")
-        return "[Failed after trying all similar models]"
+
+        # ➡️ If Euron completely failed, fallback to OpenAI
+        logger.warning("⚠️ All Euron attempts failed. Trying OpenAI fallback...")
+
+        try:
+            openai.api_key = self.openai_key
+            completion = openai.ChatCompletion.create(
+                model="gpt-3.5-turbo",  # ✅ You can change to "gpt-4" if premium
+                messages=[{"role": "user", "content": prompt}],
+                temperature=self.temperature,
+                max_tokens=self.max_tokens,
+            )
+            content = completion.choices[0].message["content"].strip()
+            logger.info(f"✅ Success using OpenAI GPT model")
+            self.model = "openai-gpt-3.5-turbo"  # ✅ Set model name correctly
+            return content
+        except Exception as e:
+            logger.error(f"❌ OpenAI fallback also failed: {e}")
+            return "[Failed after trying Euron and OpenAI both]"
+
 
 def build_graph():
     memory = ConversationBufferMemory(return_messages=True)
@@ -135,10 +159,12 @@ def build_graph():
         prompt = PromptTemplate.from_template("{input}")
         chain = prompt | llm
         result = chain.invoke({"input": state["prompt"]})
-        state["response"] = result
+        state["response"] = {"text": result}  # ✅ wrap properly
         state["model"] = llm.model
         state["memory"] = memory
         return state
+
+
 
     workflow = StateGraph(state_schema=dict)
     workflow.add_node("select_model", RunnableLambda(model_selector_node))

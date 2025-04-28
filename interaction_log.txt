@@ -1,0 +1,12 @@
+2025-04-28 15:10:37,358 [INFO] Trying models in order: ['gpt-4.1-mini', 'gpt-4.1-nano']
+2025-04-28 15:10:37,359 [INFO] Attempt 1 with model: gpt-4.1-mini
+2025-04-28 15:10:39,245 [INFO] ✅ Success using Euron model: gpt-4.1-mini
+2025-04-28 15:11:43,958 [INFO] Trying models in order: ['gpt-4.1-mini', 'gpt-4.1-nano']
+2025-04-28 15:11:43,959 [INFO] Attempt 1 with model: gpt-4.1-mini
+2025-04-28 15:11:45,468 [INFO] ✅ Success using Euron model: gpt-4.1-mini
+2025-04-28 15:16:04,258 [INFO] Trying models in order: ['gpt-4.1-mini', 'gpt-4.1-nano']
+2025-04-28 15:16:04,259 [INFO] Attempt 1 with model: gpt-4.1-mini
+2025-04-28 15:16:05,967 [INFO] ✅ Success using Euron model: gpt-4.1-mini
+2025-04-28 15:16:17,129 [INFO] Trying models in order: ['gpt-4.1-mini', 'gpt-4.1-nano']
+2025-04-28 15:16:17,131 [INFO] Attempt 1 with model: gpt-4.1-mini
+2025-04-28 15:16:21,021 [INFO] ✅ Success using Euron model: gpt-4.1-mini
